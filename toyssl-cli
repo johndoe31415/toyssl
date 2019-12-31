@@ -1,0 +1,47 @@
+#!/usr/bin/python3
+#	toyssl - Python toy SSL implementation
+#	Copyright (C) 2015-2019 Johannes Bauer
+#
+#	This file is part of toyssl.
+#
+#	toyssl is free software; you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation; this program is ONLY licensed under
+#	version 3 of the License, later versions are explicitly excluded.
+#
+#	toyssl is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+#
+#	You should have received a copy of the GNU General Public License
+#	along with toyssl; if not, write to the Free Software
+#	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#	Johannes Bauer <JohannesBauer@gmx.de>
+
+import sys
+from MultiCommand import MultiCommand
+from ActionClient import ActionClient
+from ActionServer import ActionServer
+from ActionParsePkt import ActionParsePkt
+
+mc = MultiCommand()
+
+def genparser(parser):
+	parser.add_argument("-h", "--host", metavar = "hostname", type = str, default = "127.0.0.1", help = "Specifies the hostname to connect to. Default is %(default)s.")
+	parser.add_argument("-p", "--port", metavar = "port", type = int, default = 4433, help = "Specifies the port to connect to. Default is %(default)s.")
+	parser.add_argument("--verbose", action = "store_true", help = "Increase output verbosity.")
+mc.register("client", "Act as a TLS client", genparser, action = ActionClient)
+
+def genparser(parser):
+	parser.add_argument("-p", "--port", metavar = "port", type = int, default = 4433, help = "Specifies the port to bind to. Default is %(default)s.")
+	parser.add_argument("--verbose", action = "store_true", help = "Increase output verbosity.")
+mc.register("server", "Act as a TLS server", genparser, action = ActionServer)
+
+def genparser(parser):
+	parser.add_argument("--verbose", action = "store_true", help = "Increase output verbosity.")
+	parser.add_argument("filename", type = str, help = "File to load the packet dump from.")
+mc.register("parse", "Parse a packet that was stored previously.", genparser, action = ActionParsePkt)
+
+mc.run(sys.argv[1:])
